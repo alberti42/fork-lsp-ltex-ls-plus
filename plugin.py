@@ -24,7 +24,7 @@ from typing_extensions import override
 
 GITHUB_RELEASES_API_URL = "https://api.github.com/repos/ltex-plus/ltex-ls-plus/releases/latest"
 GITHUB_REPOSITORY_URL = "https://github.com/ltex-plus/ltex-ls-plus"
-LATEST_TESTED_RELEASE = "18.7.0"
+LATEST_TESTED_RELEASE = "19.0.0"
 SETTINGS_FILENAME = "LSP-ltex-ls-plus.sublime-settings"
 
 def code_action_insert_settings(server_setting_key: str, value: dict[str, Any]):
@@ -84,13 +84,15 @@ class LTeXLsPlus(LspPlugin):
 
                 suffix = ".tar.gz"  # platform-independent release
                 if os.getenv("JAVA_HOME") is None:
+                    # The releases bundle a Java runtime for x64 and aarch64 only.
+                    arch = "aarch64" if sublime.arch() == "arm64" else "x64"
                     platform = sublime.platform()
                     if platform == "osx":
-                        suffix = "-mac-x64.tar.gz"
+                        suffix = f"-mac-{arch}.tar.gz"
                     elif platform == "linux":
-                        suffix = "-linux-x64.tar.gz"
+                        suffix = f"-linux-{arch}.tar.gz"
                     elif platform == "windows":
-                        suffix = "-windows-x64.zip"
+                        suffix = f"-windows-{arch}.zip"
 
                 github_dl_url = f"{GITHUB_REPOSITORY_URL}/releases/download/{server_version}/ltex-ls-plus-{server_version}{suffix}"
                 urllib.request.urlretrieve(github_dl_url, archive_path)
